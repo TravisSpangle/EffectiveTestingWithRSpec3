@@ -1,0 +1,4 @@
+example_id         | status | run_time        |
+------------------ | ------ | --------------- |
+./tea_spec.rb[1:1] | failed | 0.00011 seconds |
+./tea_spec.rb[1:2] | failed | 0.00009 seconds |
