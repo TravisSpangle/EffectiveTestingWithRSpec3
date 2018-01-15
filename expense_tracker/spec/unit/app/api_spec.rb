@@ -11,7 +11,50 @@ module ExpenseTracker
       API.new(ledger: ledger)
     end
 
+    def json_response
+      JSON.parse(last_response.body)
+    end
+
     let(:ledger) { instance_double('ExpenseTracker::Ledger') }
+
+    describe 'GET /expenses/:date' do
+
+      let(:date) {'2017-06-12'}
+
+      before do
+        allow(ledger).to receive(:expenses_on)
+        .with(date)
+        .and_return([{'expense_id' => 417}])
+      end
+
+      context 'when expenses exist on the given date' do
+
+        it 'returns the expense records as JSON' do
+          get "/expenses/#{date}"
+
+          expect(json_response).to include('expense_id' => 417)
+        end
+
+        it 'responds with a 200 (OK)' do
+          get "/expenses/#{date}"
+
+          expect(last_response.status).to eq(200)
+        end
+      end
+
+      context 'when there are no expenses on the given date' do
+        it 'returns an empty array as JSON' do
+          get "/expenses/#{date}"
+
+          expect(last_response.status).to eq(200)
+        end
+        it 'responds with a 200 (OK)' do
+          get "/expenses/#{date}"
+
+          expect(last_response.status).to eq(200)
+        end
+      end
+    end
 
     describe 'POST /expenses' do
 
@@ -26,8 +69,7 @@ module ExpenseTracker
         it 'returns the expense id' do
           post '/expenses', JSON.generate(expense)
 
-          parsed = JSON.parse(last_response.body)
-          expect(parsed).to include('expense_id' => 417)
+          expect(json_response).to include('expense_id' => 417)
         end
 
         it 'responds with a 200 (OK)' do
@@ -49,8 +91,7 @@ module ExpenseTracker
         it 'returns an error message' do
           post '/expenses', JSON.generate(expense)
 
-          parsed = JSON.parse(last_response.body)
-          expect(parsed).to include('error' => 'Expense incomplete')
+          expect(json_response).to include('error' => 'Expense incomplete')
         end
 
 
