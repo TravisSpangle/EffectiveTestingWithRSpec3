@@ -5,9 +5,9 @@ module ExpenseTracker
 
   class Ledger
     def record(expense)
-      unless expense.key?('payee')
-        message = 'Invalid expense: `payee` is required'
-        return RecordResult.new(false, nil, message)
+      validate_params_present expense
+      if @error
+        return RecordResult.new(false, nil, @error)
       end
 
       DB[:expenses].insert(expense)
@@ -17,6 +17,18 @@ module ExpenseTracker
 
     def expenses_on(date)
       DB[:expenses].where(date: date).all
+    end
+
+    private
+
+    def validate_params_present(expense)
+      %w(payee amount date).each do |param|
+        report_error("Invalid expense: `#{param}` is required") unless expense.key? param
+      end
+    end
+
+    def report_error(msg)
+      @error = msg
     end
   end
 end
