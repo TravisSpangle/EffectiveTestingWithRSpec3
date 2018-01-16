@@ -16,6 +16,13 @@ ENV['RACK_ENV'] = 'test'
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+
+  config.when_first_matching_example_defined(:db) do
+    # Only loads support/db when an example calls for it
+    require_relative 'support/db'
+  end
+
+
   # Filter gems out from the back-trace
   config.filter_gems_from_backtrace 'rack', 'rack-test', 'sequel', 'sinatra'
 
