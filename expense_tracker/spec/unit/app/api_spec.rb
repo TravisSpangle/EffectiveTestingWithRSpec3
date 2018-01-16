@@ -1,5 +1,6 @@
 require_relative '../../../app/api'
 require 'rack/test'
+require 'ox'
 
 module ExpenseTracker
   RecordResult = Struct.new(:success?, :expense_id, :error_message)
@@ -13,6 +14,10 @@ module ExpenseTracker
 
     def json_response
       JSON.parse(last_response.body)
+    end
+
+    def xml_response
+      Ox.parse_obj(last_response.body)
     end
 
     let(:ledger) { instance_double('ExpenseTracker::Ledger') }
@@ -35,10 +40,27 @@ module ExpenseTracker
           expect(json_response).to include('expense_id' => 417)
         end
 
+        it 'returns the expense records as XML' do
+          header 'Accept', 'application/xml;q=0.9'
+          get "/expenses/#{date}"
+
+          expect(last_response.headers["Content-Type"]).to include('xml')
+          expect(xml_response).to include('expense_id' => 417)
+        end
+
         it 'responds with a 200 (OK)' do
           get "/expenses/#{date}"
 
           expect(last_response.status).to eq(200)
+        end
+      end
+
+      context 'when requested format does not exist' do
+        it 'returns a 415 `unkown media type` status' do
+          header 'Accept', 'application/pirate;q=0.1'
+          get "/expenses/#{date}"
+
+          expect(last_response.status).to eq(415)
         end
       end
 
@@ -66,10 +88,17 @@ module ExpenseTracker
       end
 
       context 'when the expense is successfully recorded' do
-        it 'returns the expense id' do
+        it 'returns the expense id as JSON' do
           post '/expenses', JSON.generate(expense)
 
           expect(json_response).to include('expense_id' => 417)
+        end
+
+        it 'returns the expense id as XML' do
+          post '/expenses', Ox.dump(expense)
+
+          expect(last_response.headers["Content-Type"]).to include('xml')
+          expect(xml_response).to include('expense_id' => 417)
         end
 
         it 'responds with a 200 (OK)' do
