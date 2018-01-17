@@ -95,6 +95,7 @@ module ExpenseTracker
         end
 
         it 'returns the expense id as XML' do
+          header 'Accept', 'application/xml;q=0.9'
           post '/expenses', Ox.dump(expense)
 
           expect(last_response.headers["Content-Type"]).to include('xml')
@@ -105,6 +106,13 @@ module ExpenseTracker
           post '/expenses', JSON.generate(expense)
 
           expect(last_response.status).to eq(200)
+        end
+
+        it 'responds with a 415 `unkown media type` status' do
+          header 'Accept', 'application/pirate;q=0.9'
+          post '/expenses', Ox.dump(expense)
+
+          expect(last_response.status).to eq(415)
         end
       end
 
