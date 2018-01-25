@@ -17,6 +17,14 @@ ENV['RACK_ENV'] = 'test'
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
 
+  config.alias_example_group_to :pdescribe, pry: true
+  config.alias_example_to :pit, pry: true
+
+  config.after(:example, pry:true) do |ex|
+    require 'pry'
+    binding.pry
+  end
+
   config.when_first_matching_example_defined(:db) do
     # Only loads support/db when an example calls for it
     require_relative 'support/db'
