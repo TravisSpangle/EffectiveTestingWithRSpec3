@@ -1,17 +1,8 @@
-#---
-# Excerpted from "Effective Testing with RSpec 3",
-# published by The Pragmatic Bookshelf.
-# Copyrights apply to this code. It may not be used to create training material,
-# courses, books, articles, and the like. Contact us if you are in doubt.
-# We make no guarantees that this code is fit for any purpose.
-# Visit http://www.pragmaticprogrammer.com/titles/rspec3 for more book information.
-#---
 require 'uri'
+require 'support/parser_shared_examples'
 
 RSpec.describe URI do
-  it 'parses the host' do
-    expect(URI.parse('http://foo.com/').host).to eq 'foo.com'
-  end
+  it_behaves_like 'Parser', URI
 
   it 'parses the port' do
     expect(URI.parse('http://example.com:9876').port).to eq 9876
