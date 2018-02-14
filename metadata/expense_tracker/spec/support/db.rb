@@ -13,4 +13,10 @@ RSpec.configure do |c|
   c.around(:example, :db) do |example|
     DB.transaction(rollback: :always) { example.run }
   end
+
+  c.around(:example, :db) do |example|
+    DB.log_info("Starting Example: #{example.metadata[:description]}")
+    example.run
+    DB.log_info("Ending Example: #{example.metadata[:description]}")
+  end
 end
